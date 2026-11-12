@@ -1,8 +1,12 @@
 # XÓM ONLINE LIVE
 
+- Game / DEMO: https://baotran-06.github.io/xom-online-live/
+- Điều khiển DEMO: https://baotran-06.github.io/xom-online-live/admin.html
+- Workflow đã thành công: https://github.com/baotran-06/xom-online-live/actions/runs/43159781036
+
 Quán nhậu Việt Nam 3D tương tác với TikTok LIVE. Frontend Three.js/WebGL thật, mô hình và âm thanh được tạo bằng mã; Node.js bridge riêng; bảng điều khiển tách màn hình game. Không yêu cầu người xem đăng ký tài khoản game.
 
-**Tình trạng bàn giao:** mã nguồn đã xây dựng và kiểm thử local; 42 file đã được đưa vào repository public baotran-06/xom-online-live; GitHub Actions đã kiểm thử và build thành công trên Node 22. GitHub Pages chưa bật nên bước deploy đang bị chặn, chưa có URL được xác nhận, chưa kiểm tra LIVE thật. Không coi đây là dự án đã hoàn thành toàn bộ tiêu chí triển khai. Xem [báo cáo kiểm thử](docs/TEST-REPORT.md).
+**Tình trạng bàn giao:** 42 file mã nguồn đã có trong repository public baotran-06/xom-online-live. GitHub Actions đã kiểm thử và build thành công trên Node 22; GitHub Pages đã triển khai thành công và URL công khai đã mở kiểm tra. DEMO trên Pages tạo 12 khách, đồng bộ sang bảng điều khiển với 3 bàn đang dùng. Chưa kiểm chứng hình ảnh WebGL/GPU, TikTok LIVE thật, Windows/OBS và soak nhiều giờ. Xem [báo cáo kiểm thử](docs/TEST-REPORT.md).
 
 ## Khởi chạy nhanh trên Windows
 
@@ -59,7 +63,9 @@ Tham khảo [nguồn & giấy phép](docs/SOURCES.md), [kiến trúc](docs/ARCHI
 
 Dự án này độc lập, không dùng thư mục hoặc repo cũ. Workflow `.github/workflows/pages.yml` cài phụ thuộc, kiểm thử, build `dist` và deploy Pages. Pages chỉ phục vụ **frontend tĩnh/DEMO**, không chạy Node.js. Khi LIVE thật, dùng frontend do bridge local phục vụ để không gặp mixed-content HTTPS→ws://local.
 
-Repository đích: `baotran-06/xom-online-live` đã được chủ tài khoản tạo. Đưa mã vào nhánh `main`, chọn Settings → Pages → Build and deployment → Source: GitHub Actions. Sau đó chạy workflow “Test and deploy GitHub Pages”. Chỉ ghi nhận URL từ deployment thành công/Settings Pages; hiện bước test-build của workflow đã thành công, nhưng deploy báo 404 vì GitHub Pages chưa bật. Chưa có URL triển khai được xác nhận.
+Repository đích: `baotran-06/xom-online-live`; Source Pages là GitHub Actions. Workflow hiện có `.github/workflows/pages.yml` đã triển khai thành công, không tạo workflow trùng lặp. Deployment xác nhận URL https://baotran-06.github.io/xom-online-live/ . Trang game và admin đều mở được; DEMO tạo 12 khách và đồng bộ 3 bàn. Các tài nguyên đã được xuất bản; WebGL chưa tạo được context trong môi trường kiểm thử nên chưa xác nhận phần ảnh 3D trên GPU.
+
+**Không dùng helper tạo repo cho repository hiện tại đã tồn tại.** Helper bên dưới chỉ dành cho khởi tạo một repo mới và sẽ từ chối ghi đè. Để cập nhật dự án này, push vào `main`; workflow hiện có sẽ tự chạy.
 
 Nếu đã cài GitHub CLI, đăng nhập bằng `gh auth login` trên máy của bạn (không đưa token vào mã), có thể chạy `npm run publish:github` từ checkout đã có commit. Script từ chối nếu repo cùng tên tồn tại, chỉ tạo repo mới và không chạm các repo khác. Script cần quyền tạo repo, push workflow và Pages administration; nếu thiếu quyền phải xử lý trên GitHub. Không dùng tài khoản hoặc token chia sẻ công khai.
 
