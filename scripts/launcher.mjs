@@ -73,7 +73,7 @@ export async function startSystem({root=projectRoot,port=3210,browser=openDashbo
   await run(process.execPath,[join(root,'scripts','build.mjs')],root,log);if(await pendingStop())return null;
   const {createApp}=await import(pathToFileURL(join(root,'bridge','server.js')).href);
   const preferences=await readJSON(join(runtime,'preferences.json'))||{};
-  const token=randomBytes(32).toString('hex');app=createApp({initialMode:'LIVE',instanceId,projectId,shutdownToken:token,rememberedUsername:preferences.username,onPreferences:p=>writeFile(join(runtime,'preferences.json'),JSON.stringify(p),{mode:0o600}),onShutdown:()=>{void shutdown().then(()=>process.exit(0)).catch(e=>{log('[LOI] '+e.message);process.exit(1);});}});
+  const token=randomBytes(32).toString('hex');app=createApp({onLog:message=>log('[TikTok] '+message),initialMode:'LIVE',instanceId,projectId,shutdownToken:token,rememberedUsername:preferences.username,onPreferences:p=>writeFile(join(runtime,'preferences.json'),JSON.stringify(p),{mode:0o600}),onShutdown:()=>{void shutdown().then(()=>process.exit(0)).catch(e=>{log('[LOI] '+e.message);process.exit(1);});}});
   await new Promise((resolve,reject)=>{app.server.once('error',reject);app.server.listen(port,'127.0.0.1',resolve);});
   const health=await probe(origin,{instanceId,projectId});await writeFile(join(runtime,'control.json'),JSON.stringify({pid:process.pid,instanceId,projectId,port,token}),{mode:0o600});
   if(await pendingStop()){await shutdown();return null;}

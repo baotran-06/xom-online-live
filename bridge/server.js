@@ -11,7 +11,7 @@ import {TikTokBridge} from './tiktok.js';
 export function createApp(options={}) {
   const world=new World(settings,gifts);if(options.initialMode)world.reset(options.initialMode);const logs=[];let connection='disconnected';let demoIndex=0;let auto=null;let busy=false;
   const controlToken=randomBytes(32).toString('hex');
-  const log=message=>{logs.unshift({at:Date.now(),message});logs.length=Math.min(logs.length,60);};
+  const log=message=>{try{options.onLog?.(message);}catch{}logs.unshift({at:Date.now(),message});logs.length=Math.min(logs.length,60);};
   const bridge=new TikTokBridge(e=>world.enqueue(e),s=>{connection=s;},log,options.loader);
   const json=(res,status,obj)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(obj));};
   const frontend=resolve(fileURLToPath(new URL('frontend/',root)));
@@ -19,6 +19,7 @@ export function createApp(options={}) {
   const liveEvidence=()=>bridge.evidence();
   const connectLive=async username=>{
     if(!/^[a-zA-Z0-9_.]{1,40}$/.test(username))throw Error('Username không hợp lệ');
+    if(bridge.cooldownUntil>Date.now())throw Error('Nguồn đang giới hạn, cần chờ hết thời gian trước khi thử lại.');
     busy=true;clearInterval(auto);auto=null;await bridge.stop();world.reset('LIVE');
     void bridge.start(username).catch(()=>log('Không khởi tạo được TikTok.')).finally(()=>{busy=false;});
   };
@@ -46,6 +47,7 @@ export function createApp(options={}) {
       if(busy&&!['/api/disconnect','/api/restart'].includes(pathname)){json(res,409,{error:'Đang chuyển kết nối, chờ giây lát'});return;}
       try {
         if(pathname==='/api/connect') {
+          if(bridge.cooldownUntil>Date.now()){const seconds=Math.ceil((bridge.cooldownUntil-Date.now())/1000);res.setHeader('Retry-After',String(seconds));json(res,429,{error:'Nguồn giới hạn lượt kết nối. Chờ '+seconds+' giây trước khi thử lại.'});return;}
           const username=String(body.username||'').replace(/^@/,'');if(!/^[a-zA-Z0-9_.]{1,40}$/.test(username)){json(res,400,{error:'Username TikTok không hợp lệ'});return;}
           try{await options.onPreferences?.({username,autoConnect:body.remember===true});}catch{log('Không lưu được lựa chọn tự kết nối; phiên này vẫn tiếp tục.');}
           await connectLive(username);json(res,202,{ok:true});return;

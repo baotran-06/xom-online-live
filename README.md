@@ -6,7 +6,7 @@
 
 Quán nhậu Việt Nam 3D tương tác với TikTok LIVE. Frontend Three.js/WebGL thật, mô hình và âm thanh được tạo bằng mã; Node.js bridge riêng; bảng điều khiển tách màn hình game. Không yêu cầu người xem đăng ký tài khoản game.
 
-**Tình trạng bàn giao:** 47 file mã nguồn đã có trong repository public baotran-06/xom-online-live. GitHub Actions đã kiểm thử và build thành công trên Node 22; GitHub Pages đã triển khai thành công và URL công khai đã mở kiểm tra. DEMO trên Pages tạo 12 khách, đồng bộ sang bảng điều khiển với 3 bàn đang dùng. Chưa kiểm chứng hình ảnh WebGL/GPU, TikTok LIVE thật, Windows/OBS và soak nhiều giờ. Xem [báo cáo kiểm thử](docs/TEST-REPORT.md).
+**Tình trạng bàn giao:** 49 file mã nguồn đã có trong repository public baotran-06/xom-online-live. GitHub Actions đã kiểm thử và build thành công trên Node 22; GitHub Pages đã triển khai thành công và URL công khai đã mở kiểm tra. DEMO trên Pages tạo 12 khách, đồng bộ sang bảng điều khiển với 3 bàn đang dùng. Chưa kiểm chứng hình ảnh WebGL/GPU, TikTok LIVE thật, Windows/OBS và soak nhiều giờ. Xem [báo cáo kiểm thử](docs/TEST-REPORT.md).
 
 ## Khởi chạy nhanh trên Windows
 
@@ -43,6 +43,8 @@ Tắt bằng STOP-XOM.bat (hoặc Ctrl+C). Game/Admin local phải cùng origin.
 - Không có DB: dữ liệu phiên nằm trong RAM, đóng tiến trình là xóa.
 
 ## TikTok: điều đã xác minh và chưa xác minh
+
+Bản sửa chẩn đoán mới giữ lại loại lỗi, route và HTTP đã lọc thay vì che mọi lỗi thành một câu chung; mã lỗi hiển thị ngay trên admin và log local. Đã chống log trùng, giữ giới hạn retry khi socket chưa có dữ liệu, tôn trọng thời gian429, và không để lỗi danh mục quà tùy chọn chặn luồng kết nối. Đây không phải tuyên bố đã sửa mọi lỗi nguồn TikTok hoặc đã kiểm chứng LIVE trên laptop người dùng.
 
 Đã kiểm tra tài liệu chính thức TikTok về webhook; danh sách công khai không xác lập general-purpose LIVE gift/member feed. Adapter dùng **tiktok-live-connector 2.5.0**, dự án không chính thức, kết nối public LIVE theo username, có thể phụ thuộc dịch vụ ký Euler Stream. Đã cài package, import API và kiểm tra schema protobuf v3 thực tế. Đây **không phải** kiểm chứng LIVE thành công.
 

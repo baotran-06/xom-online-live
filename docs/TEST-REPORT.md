@@ -4,8 +4,8 @@
 
 | Hạng mục | Kết quả / bằng chứng |
 |---|---|
-| Cú pháp JavaScript / JSON | npm run check, 19 module hợp lệ |
-| Test tự động | 21 tests Linux pass, 0 fail; 1 Windows-only test được skip ở Linux và chạy riêng thành công trên Windows (Node 22.23.4) |
+| Cú pháp JavaScript / JSON | npm run check, 21 module hợp lệ |
+| Test tự động | 33 tests Linux pass, 0 fail; 1 Windows-only test được skip ở Linux và chạy riêng thành công trên Windows (Node 22.23.4) |
 | Join lặp 100 lần | Một tài khoản → một avatar, một unique visitor |
 | 50 khách và nhường ghế | 28 ngồi, 22 chờ; khách tiếp theo nhận ghế được giải phóng; TTL xóa trạng thái |
 | Quà/streak | Chỉ nhận repeatEnd, giữ tổng cuối, dedupe message/group, trigger nhóm theo ngưỡng |
@@ -48,3 +48,10 @@ Không tuyên bố đã đáp ứng đầy đủ tiêu chí hoàn thành sản p
 ## Tự mở hai trang — cập nhật mới nhất
 
 Source commit 6854638d62894ff2cd2961b0764949621ebb509b, workflow https://github.com/baotran-06/xom-online-live/actions/runs/43174970548. Đã đọc và kiểm tra START-XOM.bat, STOP-XOM.bat và launcher thực tế trong repo. Launcher sau health check mở lần lượt http://127.0.0.1:3210/admin và http://127.0.0.1:3210/; nếu một lần mở thất bại vẫn thử trang còn lại và in cả hai URL để xử lý. Unit test xác nhận hai URL, trường hợp một lần mở lỗi và chế độ không mở browser của CI. Windows runner đã gọi trực tiếp cả BAT và pass các bài setup, HTTP/WebSocket, mở trùng, STOP và cổng bận. CI không quan sát giao diện browser hoặc TikTok LIVE thật trên laptop người dùng.
+
+## Bản sửa lỗi nguồn TikTok
+
+- Thông báo cũ đã bỏ mất exception thực tế. Bản mới chỉ xuất các trường allowlist: loại lỗi, route, HTTP, mã mạng; không xuất message gốc, body, URL ký, cookie hoặc key.
+- Kiểm thử: phân loại lỗi SDK thật; exception composite/cause lồng nhau và có chu trình; không lộ dữ liệu nhạy cảm; gộp lỗi vừa emit vừa reject; lỗi quyền dừng retry;429 chờ đúng millisecond của SDK và header HTTP; cooldown không bị xóa khi ngắt thủ công; socket mở chưa có sự kiện không reset retry; lỗi danh mục quà tùy chọn không làm chết transport và không bỏ qua429.
+- Thử username công khai trong ảnh do người dùng cung cấp từ môi trường kiểm thử: không tìm được room, verified=false, RequestError HTTP301 ở bước lookup. Không nhận sự kiện thật. Mạng/môi trường kiểm thử khác laptop người dùng, nên không kết luận đây là cùng nguyên nhân trên laptop.
+- Vẫn cần chạy bản mới trên laptop để lấy mã lỗi cụ thể tại nguồn đó. Không xem phần sửa log/retry là bằng chứng đã kết nối TikTok thành công.

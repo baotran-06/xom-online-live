@@ -12,33 +12,7 @@
 1. Nhấp đúp **START-XOM.bat** trong thư mục đã giải nén.
 2. START kiểm tra Node; tự cài đúng dependencies root **và bridge TikTok** bằng package-lock nếu thiếu/thay đổi/lỗi import; build frontend; khởi động một Node process phục vụ cả HTTP, WebSocket và TikTok adapter.
 3. Chỉ khi kiểm tra HTTP health, WebSocket nhận snapshot và các trang/tài nguyên frontend đều thành công, START mới mở **hai trang**: quản trị **http://127.0.0.1:3210/admin** và game **http://127.0.0.1:3210/**. Không cần tải lại trang để chờ server. Giữ cửa sổ START khi đang dùng.
-4. Lần đầu, nhập username TikTok đang LIVE (không phải tên hiển thị) và bấm Kết nối. Công tắc **“Lần mở START sau tự kết nối username này”** sẽ lưu username công khai trong `.runtime/preferences.json`; không lưu mật khẩu/cookie TikTok. Nếu bật công tắc, những lần nhấp START sau tự thử kết nối username đã lưu. Bỏ công tắc rồi bấm Kết nối để ngừng lưu lựa chọn tự kết nối.
-5. Lúc khởi động, local mặc định **LIVE đang chờ**, không tự tạo khách hoặc quà DEMO. Chế độ DEMO chỉ được bật khi bạn chủ động chọn trên admin.
-6. Game đã được mở ở tab riêng. Nếu lỡ đóng, dùng nút **Mở màn hình game** trên admin hoặc mở http://127.0.0.1:3210/ . Màn hình quản lý không nằm trong game.
-7. Khi xong, nhấp đúp **STOP-XOM.bat** trong **đúng thư mục đang chạy**. STOP yêu cầu server ngắt TikTok, hủy reconnect, đóng WebSocket và HTTP, rồi xóa thông tin phiên tạm. STOP không tắt Chrome, OBS, LIVE Studio hoặc Node của ứng dụng khác.
-
-Nhấn START lần nữa khi đang chạy sẽ mở lại quản trị và game, không tạo server trùng. Nếu đang cài dependencies thì cửa sổ START thứ hai sẽ báo đang khởi động để bạn chờ. STOP trong lúc cài gửi yêu cầu dừng; chờ bước cài hiện tại kết thúc rồi tự dừng. Không đóng cưỡng bức cửa sổ trong lúc npm đang cài.
-
-## Đọc trạng thái TikTok đúng cách
-
-| Trạng thái | Ý nghĩa |
-|---|---|
-| HTTP/WebSocket/frontend sẵn sàng | Dịch vụ local hoạt động; chưa chứng minh TikTok đang kết nối |
-| Đang kết nối TikTok | Đang thử kết nối username, có thể thất bại do offline, mạng hoặc dịch vụ ký |
-| Socket đã mở · đang chờ sự kiện TikTok thật | Kết nối transport đã mở, **chưa xác minh LIVE hoạt động** |
-| Đã nhận sự kiện TikTok LIVE thật | Adapter vừa nhận ít nhất một sự kiện nguồn hợp lệ có tài khoản; xem bộ đếm và thời điểm gần nhất |
-| Đang kết nối lại / lỗi / đã ngắt | Không xem là LIVE đã xác minh; không chèn dữ liệu giả để che lỗi |
-
-Kiểm tra bằng một người xem khác vào LIVE, gửi chat hoặc thả tim. Không cần mua quà để kiểm tra. `member` không được TikTok đảm bảo cho tất cả người xem. Nếu chưa có sự kiện thật thì hệ thống sẽ giữ thông báo đang chờ, kể cả socket mở được. Nhà phát triển chưa có username đang LIVE do bạn cung cấp để kiểm chứng sự kiện thật trên tài khoản của bạn.
-
-## Lỗi thường gặp
-
-- **Thiếu Node/npm hoặc Node quá cũ:** cài Node.js LTS 22 trở lên kèm npm; nhấn START lại, không cần viết code.
-- **Cài dependency thất bại:** kiểm tra mạng, dung lượng đĩa, quyền ghi thư mục; nhấn START lại. Không báo server sẵn sàng khi cài thất bại.
-- **Cổng 3210 đang bận:** nếu Xóm của cùng thư mục đang chạy, START tái dùng. Nếu chương trình khác/bản Xóm khác chiếm cổng, START báo lỗi và không tự giết tiến trình. Đóng đúng ứng dụng đó hoặc dùng STOP từ thư mục của phiên Xóm cũ.
-- **Cửa sổ tắt bất thường:** nhấn START lại; khóa PID chết được phát hiện và dọn. Nếu PID còn sống nhưng server không phản hồi, STOP báo lỗi thay vì force-kill một PID có thể đã được dùng lại. Kiểm tra cửa sổ START cũ.
-- **Nhật ký:** `.runtime/logs/latest.log` và `latest.log.previous`. Log có giới hạn; `.runtime` nằm trong gitignore. Không gửi file `control.json` vì có token quản lý local.
-- **Không mở được trình duyệt mặc định:** START giữ server hoạt động và in URL local để bạn mở. Bình thường URL tự mở sau kiểm tra sẵn sàng.
+4. Lần đầu, nhập username TikTok đang LIVE (không phải tên hiển thị) và bấm Kết nối. Công tắc **“Lần mở START sau tự kết nối username này”** sẽ lưu username công khai tron…1358 tokens truncated…0111ược trình duyệt mặc định:** START giữ server hoạt động và in URL local để bạn mở. Bình thường URL tự mở sau kiểm tra sẵn sàng.
 - **Máy ngủ/đổi mạng:** TikTok có thể mất kết nối và reconnect. Khi số lần thử vượt giới hạn, bấm Kết nối lại trên admin. Không thể bảo đảm buổi LIVE tự bắt đầu trên TikTok chỉ bằng START.
 - **WebGL lỗi:** bật tăng tốc đồ họa Chrome/Edge, cập nhật driver GPU và thử lại. Launcher kiểm tra tài nguyên WebGL đã phục vụ được, không chứng minh GPU của laptop render thành công.
 
@@ -64,3 +38,19 @@ Nếu bản LIVE Studio có nguồn Link/Webpage, thêm URL game local, 1920×10
 - Thử quà chỉ nếu tự nguyện; đối chiếu giftId và streak cuối với TikTok, không suy luận từ DEMO.
 - Ngắt mạng thử reconnect, kết thúc LIVE kiểm tra ended.
 - Chạy soak 2–4 giờ, quan sát Task Manager và FPS/OBS dropped frames. Chưa thực hiện bước này trong môi trường xây dựng.
+
+## Bản sửa nhật ký kết nối TikTok
+
+Nếu gặp log cũ chỉ ghi “nguồn LIVE hoặc dịch vụ ký chưa khả dụng”: chạy STOP, tải lại bản ZIP mới từ main, giải nén vào thư mục mới rồi START lại. Bản mới hiển thị mã lỗi ngay dưới nút Kết nối, ghi các loại lỗi/route/HTTP đã lọc vào nhật ký và log local. Không ghi thông báo nguồn nguyên văn, response body, URL đã ký, cookie hoặc API key.
+
+- `ROOM_LOOKUP_FAILED`: các nguồn tra cứu không tìm được room. Chưa chứng minh tài khoản đã ngừng LIVE; kiểm tra đúng @username. Nếu vẫn xảy ra cần đối chiếu chi tiết route/HTTP trên chính laptop.
+- `ROOM_OFFLINE`: thư viện báo phòng chưa LIVE; kiểm tra buổi LIVE và username trước khi thử lại.
+- `PROVIDER_PERMISSION` / `ACCESS_DENIED`: nguồn từ chối quyền/xác thực. Không thể sửa bằng DEMO hoặc thêm nguồn hình vào LIVE Studio; cần xử lý quyền của nguồn thực tế. Không gửi mật khẩu/cookie/API key vào chat.
+- `RATE_LIMIT`: tự chờ thời gian Retry-After/reset của nguồn. Trong thời gian đó nút Kết nối bị API từ chối kèm số giây chờ, không gửi thêm yêu cầu nguồn.
+- `NETWORK_ERROR` / `CONNECT_TIMEOUT`: xem mã DNS/mạng/TLS. Không tắt kiểm tra chứng chỉ để thử vượt lỗi.
+- `SIGNING_FAILED`: lỗi lấy chữ ký; riêng mã này chưa chứng minh phải mua gói dịch vụ.
+- `WS_HANDSHAKE_INVALID`: HTTP trả về chưa nâng cấp thành WebSocket, không coi là đã kết nối.
+
+Lỗi cố định như lookup/permission không bị thử lại liên tục. Lỗi tạm thời có backoff và giới hạn8 lần; mở được socket nhưng chưa nhận sự kiện không làm đặt lại bộ đếm retry. Thêm nguồn hình game vào phần mềm phát LIVE chỉ hiển thị game, không sửa lỗi của cầu nối.
+
+Danh mục quà mở rộng là dữ liệu phụ. Nếu chỉ tải danh mục này thất bại, bản sửa ghi `GIFT_CATALOG_UNAVAILABLE` và tiếp tục thử socket LIVE; tên/type quà sử dụng dữ liệu gốc của sự kiện hoặc cấu hình giftId khi có. Lỗi ký/kết nối socket vẫn được xử lý bình thường, không bị bỏ qua. HTTP429 của danh mục vẫn buộc chờ theo nguồn. Kết nối được hay chưa vẫn chỉ được xác minh bằng sự kiện thật.
