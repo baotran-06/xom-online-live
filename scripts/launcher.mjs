@@ -50,9 +50,15 @@ import {statSync} from 'node:fs';
 function requireSize(path){return statSync(path).size;}
 async function acquire(root,instanceId){const path=join(root,'.runtime','start.lock');for(let i=0;i<2;i++){try{const f=await open(path,'wx',0o600);await f.writeFile(JSON.stringify({pid:process.pid,instanceId}));await f.close();return;}catch(e){if(e.code!=='EEXIST')throw e;const lock=await readJSON(path);if(lock&&alive(lock.pid))throw Error('Xom dang khoi dong hoac da chay. Hay doi, hoac dung STOP-XOM.bat trong thu muc nay.');try{const age=Date.now()-(await stat(path)).mtimeMs;if(!lock&&age<5000)throw Error('Xom vua bat dau khoi dong; hay doi vai giay.');await unlink(path);}catch(e){if(e.code!=='ENOENT')throw e;}}}throw Error('Khong tao duoc khoa khoi dong.');}
 async function removeOwned(path,instanceId){const data=await readJSON(path);if(data?.instanceId===instanceId)await unlink(path).catch(()=>{});}
-export async function openDashboard(origin){if(process.env.XOM_NO_BROWSER==='1')return;
- if(process.platform==='win32')await new Promise((resolve,reject)=>{const c=spawn(process.env.ComSpec||'cmd.exe',['/d','/s','/c','start "" "'+origin+'/admin"'],{windowsHide:true,windowsVerbatimArguments:true,stdio:'ignore'});c.once('error',reject);c.once('exit',code=>code===0?resolve():reject(Error('Khong mo duoc trinh duyet.')));});
- else {const child=spawn(process.platform==='darwin'?'open':'xdg-open',[origin+'/admin'],{stdio:'ignore',detached:true});child.on('error',()=>{});child.unref();}
+export function dashboardUrls(origin){return [origin+'/admin',origin+'/'];}
+async function launchUrl(url){
+ if(process.platform==='win32')await new Promise((resolve,reject)=>{const c=spawn(process.env.ComSpec||'cmd.exe',['/d','/s','/c','start "" "'+url+'"'],{windowsHide:true,windowsVerbatimArguments:true,stdio:'ignore'});c.once('error',reject);c.once('exit',code=>code===0?resolve():reject(Error('Khong mo duoc trinh duyet.')));});
+ else {const child=spawn(process.platform==='darwin'?'open':'xdg-open',[url],{stdio:'ignore',detached:true});child.on('error',()=>{});child.unref();}
+}
+export async function openDashboard(origin,{disabled=process.env.XOM_NO_BROWSER==='1',launch=launchUrl}={}){
+ if(disabled)return;
+ const errors=[];for(const url of dashboardUrls(origin)){try{await launch(url);}catch(e){errors.push(e);}}
+ if(errors.length)throw Error('Khong mo duoc day du trang quan tri/game.');
 }
 export async function startSystem({root=projectRoot,port=3210,browser=openDashboard,install=runNpm}={}){
  port=checkedPort(port);const origin='http://127.0.0.1:'+port;const runtime=join(root,'.runtime');await mkdir(join(runtime,'logs'),{recursive:true,mode:0o700});
@@ -73,7 +79,7 @@ export async function startSystem({root=projectRoot,port=3210,browser=openDashbo
   if(await pendingStop()){await shutdown();return null;}
   log('[OK] HTTP + WebSocket + frontend da san sang: '+origin+'/admin');log('[TikTok] CHUA ket noi LIVE. Nhap username tren bang dieu khien. Chi xac nhan khi nhan su kien that.');
   if(preferences.autoConnect&&/^[a-zA-Z0-9_.]{1,40}$/.test(preferences.username||'')){log('[TikTok] Dang thu ket noi username da luu; CHUA xac nhan su kien LIVE.');void app.connectLive(preferences.username).catch(()=>log('[TikTok] Khong khoi tao duoc ket noi da luu.'));}
-  try{await browser(origin);}catch{log('[LOI] Server da san sang nhung khong mo duoc browser. Mo '+origin+'/admin');}
+  try{await browser(origin);}catch{log('[LOI] Server da san sang nhung khong mo duoc day du browser. Quan tri: '+origin+'/admin | Game: '+origin+'/');}
   let monitoring=false;monitor=setInterval(async()=>{if(monitoring||closing)return;monitoring=true;try{await probe(origin,{instanceId,projectId});}catch(e){log('[LOI KIEM TRA] '+e.message);}finally{monitoring=false;}},15000);monitor.unref();
   for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>{void shutdown().then(()=>process.exit(0));});
   return {app,health,shutdown};

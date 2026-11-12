@@ -14,7 +14,7 @@ Quán nhậu Việt Nam 3D tương tác với TikTok LIVE. Frontend Three.js/Web
 
 1. Cài **Node.js 22 LTS hoặc mới hơn**.
 2. Giải nén vào thư mục mới; chạy **START-XOM.bat**.
-3. Mở game `http://127.0.0.1:3210/`, điều khiển `http://127.0.0.1:3210/admin`.
+3. START đợi server/WebSocket sẵn sàng rồi tự mở **hai tab**: quản trị `http://127.0.0.1:3210/admin` và game `http://127.0.0.1:3210/`.
 4. Local khởi động ở LIVE đang chờ, không có khách giả. Nếu muốn thử DEMO, chủ động bật DEMO trên admin trước.
 5. START tự cài cả adapter TikTok nếu cần. Lần đầu nhập username và bật nhớ tự kết nối cho các lần sau. Chỉ báo LIVE đã xác minh sau sự kiện nguồn thật. Không nhập mật khẩu/token TikTok.
 6. Dừng bằng **STOP-XOM.bat** trong cùng thư mục; không dùng taskkill toàn bộ Node. Xem [hướng dẫn tải và dùng hai BAT](docs/WINDOWS-OBS.md).

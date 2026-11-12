@@ -11,13 +11,13 @@
 
 1. Nhấp đúp **START-XOM.bat** trong thư mục đã giải nén.
 2. START kiểm tra Node; tự cài đúng dependencies root **và bridge TikTok** bằng package-lock nếu thiếu/thay đổi/lỗi import; build frontend; khởi động một Node process phục vụ cả HTTP, WebSocket và TikTok adapter.
-3. Chỉ khi kiểm tra HTTP health, WebSocket nhận snapshot và các trang/tài nguyên frontend đều thành công, START mới mở **http://127.0.0.1:3210/admin**. Không cần tải lại trang để chờ server. Giữ cửa sổ START khi đang dùng.
+3. Chỉ khi kiểm tra HTTP health, WebSocket nhận snapshot và các trang/tài nguyên frontend đều thành công, START mới mở **hai trang**: quản trị **http://127.0.0.1:3210/admin** và game **http://127.0.0.1:3210/**. Không cần tải lại trang để chờ server. Giữ cửa sổ START khi đang dùng.
 4. Lần đầu, nhập username TikTok đang LIVE (không phải tên hiển thị) và bấm Kết nối. Công tắc **“Lần mở START sau tự kết nối username này”** sẽ lưu username công khai trong `.runtime/preferences.json`; không lưu mật khẩu/cookie TikTok. Nếu bật công tắc, những lần nhấp START sau tự thử kết nối username đã lưu. Bỏ công tắc rồi bấm Kết nối để ngừng lưu lựa chọn tự kết nối.
 5. Lúc khởi động, local mặc định **LIVE đang chờ**, không tự tạo khách hoặc quà DEMO. Chế độ DEMO chỉ được bật khi bạn chủ động chọn trên admin.
-6. Mở game riêng bằng nút **Mở màn hình game**, hoặc http://127.0.0.1:3210/ . Màn hình quản lý không nằm trong game.
+6. Game đã được mở ở tab riêng. Nếu lỡ đóng, dùng nút **Mở màn hình game** trên admin hoặc mở http://127.0.0.1:3210/ . Màn hình quản lý không nằm trong game.
 7. Khi xong, nhấp đúp **STOP-XOM.bat** trong **đúng thư mục đang chạy**. STOP yêu cầu server ngắt TikTok, hủy reconnect, đóng WebSocket và HTTP, rồi xóa thông tin phiên tạm. STOP không tắt Chrome, OBS, LIVE Studio hoặc Node của ứng dụng khác.
 
-Nhấn START lần nữa khi đang chạy sẽ mở lại admin, không tạo server trùng. Nếu đang cài dependencies thì cửa sổ START thứ hai sẽ báo đang khởi động để bạn chờ. STOP trong lúc cài gửi yêu cầu dừng; chờ bước cài hiện tại kết thúc rồi tự dừng. Không đóng cưỡng bức cửa sổ trong lúc npm đang cài.
+Nhấn START lần nữa khi đang chạy sẽ mở lại quản trị và game, không tạo server trùng. Nếu đang cài dependencies thì cửa sổ START thứ hai sẽ báo đang khởi động để bạn chờ. STOP trong lúc cài gửi yêu cầu dừng; chờ bước cài hiện tại kết thúc rồi tự dừng. Không đóng cưỡng bức cửa sổ trong lúc npm đang cài.
 
 ## Đọc trạng thái TikTok đúng cách
 
