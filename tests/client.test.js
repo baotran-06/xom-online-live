@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {Client} from '../frontend/js/client.js';
+test('lost local WebSocket preserves LIVE avatars and revokes connection verification without synthesizing leave',async()=>{
+ const oldLocation=globalThis.location,oldWS=globalThis.WebSocket;globalThis.location={hostname:'example.com',host:'example.com'};let socket;globalThis.WebSocket=class{constructor(){socket=this;}close(){}};let last;const c=new Client(s=>{last=s;});
+ try{await c.ready;c.state={mode:'LIVE',users:[{id:'real-123',name:'Tên nguồn',seat:0}],liveEvidence:{verified:true},connection:'connected'};c.remote=true;c.connect();socket.onclose();await new Promise(r=>setTimeout(r,180));assert.equal(last.connection,'disconnected');assert.equal(last.liveEvidence.verified,false);assert.equal(last.users[0].id,'real-123');socket.onmessage({data:JSON.stringify({...c.state,connection:'connected'})});assert.equal(c.holdLive,false);}finally{c.close();globalThis.location=oldLocation;globalThis.WebSocket=oldWS;}
+});

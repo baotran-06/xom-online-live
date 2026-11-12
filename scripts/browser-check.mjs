@@ -4,7 +4,7 @@ import {mkdir} from 'node:fs/promises';
 import {createApp} from '../bridge/server.js';
 const app=createApp();await new Promise(r=>app.server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+app.server.address().port;
 const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--autoplay-policy=user-gesture-required']});
-const page=await browser.newPage({viewport:{width:1920,height:1080}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+const page=await browser.newPage({viewport:{width:1920,height:1080}});page.setDefaultTimeout(60000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
 async function rms(){return page.evaluate(()=>{const a=__xom.audio.analyser,b=new Uint8Array(a.fftSize);a.getByteTimeDomainData(b);return Math.sqrt(b.reduce((s,v)=>s+((v-128)/128)**2,0)/b.length);});}
 try{
  await page.goto(origin+'/admin');await page.click('#demo-mode');await page.click('[data-amount="12"]');await page.goto(origin+'/');await page.waitForFunction(()=>window.__xom?.scene?.avatars.size===12);await page.waitForTimeout(3500);

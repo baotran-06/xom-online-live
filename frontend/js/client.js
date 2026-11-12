@@ -6,7 +6,7 @@ export class Client {
     this.channel.onmessage=({data})=>{if(this.remote)return;if(data.command&&this.leader){try{this.localCommand(data.path,data.body);}catch{}}if(data.state&&!this.leader){this.state=data.state;this.onState(this.state);}};
     // Web Locks elects one DEMO simulation across game and dashboard tabs.
     if(navigator.locks)navigator.locks.request('xom-demo-leader',{mode:'exclusive'},async()=>{if(this.closed)return;this.leader=true;await new Promise(r=>{this.release=r;});});else this.leader=true;
-    this.timer=setInterval(()=>{if(!this.remote&&this.leader){this.world.tick();const s={...this.world.snapshot(),connection:this.world.mode==='LIVE'?'disconnected':'demo-local',logs:[]};this.state=s;this.onState(s);this.channel.postMessage({state:s});}},100);
+    this.timer=setInterval(()=>{if(!this.remote&&this.holdLive&&this.state){this.onState({...this.state,connection:'disconnected',liveEvidence:{...this.state.liveEvidence,verified:false}});return;}if(!this.remote&&this.leader){this.world.tick();const s={...this.world.snapshot(),connection:this.world.mode==='LIVE'?'disconnected':'demo-local',logs:[]};this.state=s;this.onState(s);this.channel.postMessage({state:s});}},100);
     this.ready=this.probe();
   }
   async probe(){
@@ -14,10 +14,10 @@ export class Client {
     try{const response=await fetch('/api/state',{signal:AbortSignal.timeout(2500)});if(!response.ok||!response.headers.get('content-type')?.includes('application/json'))return;const s=await response.json();if(!Array.isArray(s.users)||!s.connection)return;this.isLocal=true;this.remote=true;this.state=s;this.onState(s);this.connect();}catch{}
   }
   connect(){if(this.closed)return;const ws=new WebSocket(`ws://${location.host}/ws`);this.ws=ws;
-    ws.onmessage=e=>{try{const s=JSON.parse(e.data);if(!Array.isArray(s.users))return;this.remote=true;this.retry=0;this.lastRemote=Date.now();this.state=s;this.onState(s);}catch{}};
+    ws.onmessage=e=>{try{const s=JSON.parse(e.data);if(!Array.isArray(s.users))return;this.remote=true;this.holdLive=false;this.retry=0;this.lastRemote=Date.now();this.state=s;this.onState(s);}catch{}};
     ws.onerror=()=>{};ws.onclose=()=>{if(this.closed)return;this.remote=false;
       // Never replace disconnected LIVE with a synthetic running DEMO silently.
-      if(this.state?.mode==='LIVE'){this.world.reset('LIVE');this.world.sound=false;}
+      if(this.state?.mode==='LIVE')this.holdLive=true;
       this.retryTimer=setTimeout(()=>this.connect(),Math.min(15000,1000*2**this.retry++));};
   }
   async command(path,body={}) {
