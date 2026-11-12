@@ -5,7 +5,7 @@
 | Hạng mục | Kết quả / bằng chứng |
 |---|---|
 | Cú pháp JavaScript / JSON | npm run check, 15 module hợp lệ |
-| Test tự động | 14/14 pass (Node 24 trong môi trường xây dựng; workflow nhắm Node 22) |
+| Test tự động | 14/14 pass (Node 24 local và Node 22 trên GitHub Actions đều pass) |
 | Join lặp 100 lần | Một tài khoản → một avatar, một unique visitor |
 | 50 khách và nhường ghế | 28 ngồi, 22 chờ; khách tiếp theo nhận ghế được giải phóng; TTL xóa trạng thái |
 | Quà/streak | Chỉ nhận repeatEnd, giữ tổng cuối, dedupe message/group, trigger nhóm theo ngưỡng |
@@ -27,6 +27,6 @@ Root và bridge: npm audit --omit=dev sau cập nhật không ghi nhận advisor
 - Audio đầu ra thiết bị/OBS. Mã tổng hợp hiệu ứng đã có; chưa nghe kiểm tra bằng thiết bị thật.
 - Kết nối TikTok thật, viewer/member event, quà thật, streamEnd và reconnect với mạng TikTok thật. Các test adapter sử dụng fixture, không giả là LIVE thực tế.
 - Chạy BAT trên Windows thật, Node 22 thật, TikTok LIVE Studio/OBS và soak nhiều giờ. BAT đã soạn và rà soát, chưa thực thi trên Windows.
-- Repository GitHub mới và GitHub Pages: kết nối GitHub hiện tại không có công cụ tạo repo hoặc bật Pages; gh CLI chưa đăng nhập. Không có remote URL/deployment URL được xác nhận. Workflow và helper xuất bản đã chuẩn bị nhưng chưa chạy trên GitHub.
+- GitHub Pages: repo public https://github.com/baotran-06/xom-online-live đã được chủ tài khoản tạo; 42 file đã upload vào main (commit 88d2fe8fbf05cd26137f6e7db4067956f5cd9879). Workflow run 43159781036: job test-build thành công (npm ci, check, 14 tests, build, upload artifact); deploy thất bại HTTP 404, log yêu cầu bật GitHub Pages. Trình duyệt GitHub đang logged out nên dừng ở bước cấu hình để chủ tài khoản thực hiện. Chưa có deployment URL được xác nhận.
 
 Không tuyên bố đã đáp ứng đầy đủ tiêu chí hoàn thành sản phẩm. Phần mã nguồn, DEMO logic/UI và giao tiếp bridge đã triển khai; cần hoàn tất các bước kiểm chứng còn lại.
