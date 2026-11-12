@@ -2,13 +2,15 @@
 
 - Game / DEMO: https://baotran-06.github.io/xom-online-live/
 - Điều khiển DEMO: https://baotran-06.github.io/xom-online-live/admin.html
-- Workflow đã thành công: https://github.com/baotran-06/xom-online-live/actions/runs/43159781036
+- Workflow đã thành công: https://github.com/baotran-06/xom-online-live/actions/runs/43164688103
 
 Quán nhậu Việt Nam 3D tương tác với TikTok LIVE. Frontend Three.js/WebGL thật, mô hình và âm thanh được tạo bằng mã; Node.js bridge riêng; bảng điều khiển tách màn hình game. Không yêu cầu người xem đăng ký tài khoản game.
 
-**Tình trạng bàn giao:** 42 file mã nguồn đã có trong repository public baotran-06/xom-online-live. GitHub Actions đã kiểm thử và build thành công trên Node 22; GitHub Pages đã triển khai thành công và URL công khai đã mở kiểm tra. DEMO trên Pages tạo 12 khách, đồng bộ sang bảng điều khiển với 3 bàn đang dùng. Chưa kiểm chứng hình ảnh WebGL/GPU, TikTok LIVE thật, Windows/OBS và soak nhiều giờ. Xem [báo cáo kiểm thử](docs/TEST-REPORT.md).
+**Tình trạng bàn giao:** 47 file mã nguồn đã có trong repository public baotran-06/xom-online-live. GitHub Actions đã kiểm thử và build thành công trên Node 22; GitHub Pages đã triển khai thành công và URL công khai đã mở kiểm tra. DEMO trên Pages tạo 12 khách, đồng bộ sang bảng điều khiển với 3 bàn đang dùng. Chưa kiểm chứng hình ảnh WebGL/GPU, TikTok LIVE thật, Windows/OBS và soak nhiều giờ. Xem [báo cáo kiểm thử](docs/TEST-REPORT.md).
 
 ## Khởi chạy nhanh trên Windows
+
+**Đã thực thi START/STOP bằng cmd.exe trên Windows, Node 22.23.4:** tự cài root/bridge khi trống, kiểm tra HTTP/WebSocket/frontend, chống mở trùng, dừng đúng phiên; sai thư mục/cổng bận được chặn. [Xem workflow đã qua kiểm thử](https://github.com/baotran-06/xom-online-live/actions/runs/43164688103). CI không mở cửa sổ trình duyệt đồ họa và chưa kiểm chứng TikTok LIVE của tài khoản người dùng.
 
 1. Cài **Node.js 22 LTS hoặc mới hơn**.
 2. Giải nén vào thư mục mới; chạy **START-XOM.bat**.
