@@ -1,0 +1,23 @@
+{
+  "name": "xom-online-live",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Quán nhậu 3D tương tác cho TikTok LIVE, chạy local trên Windows",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node bridge/server.js",
+    "test": "node --test",
+    "check": "node scripts/check.mjs",
+    "build": "node scripts/build.mjs",
+    "install:tiktok": "npm install --prefix bridge",
+    "publish:github": "node scripts/publish-github.mjs"
+  },
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "three": "0.170.0",
+    "ws": "8.22.2"
+  }
+}

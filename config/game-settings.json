@@ -1,0 +1,1 @@
+{"tables":7,"seatsPerTable":4,"maxVisible":28,"maxWaiting":80,"idleTimeoutMs":600000,"eventQueueLimit":2000,"eventsPerTick":30,"tickMs":100,"dedupeLimit":10000,"dedupeTtlMs":900000,"historyLimit":80,"sessionVisitorLimit":50000}

@@ -1,0 +1,7 @@
+{
+  "note":"ID quà khác nhau theo vùng và thời điểm. Xác minh giftId từ LIVE thật trong bảng sự kiện rồi cấu hình lại. Tên chỉ dùng làm fallback; không suy luận từ giá trị tiền.",
+  "byId":{},
+  "byName":{"rose":"flowers","hoa hồng":"flowers","beer":"cheers","bia":"cheers","heart":"wave","tim":"wave","galaxy":"spotlight","lion":"spotlight"},
+  "defaultAction":"cheers","groupThreshold":10,
+  "actions":{"flowers":{"label":"nhận hoa","sound":"bell"},"cheers":{"label":"nâng ly","sound":"clink"},"wave":{"label":"vẫy tay","sound":"bell"},"spotlight":{"label":"tỏa sáng trên sân khấu","sound":"fanfare"}}
+}

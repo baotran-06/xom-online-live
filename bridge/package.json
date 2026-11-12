@@ -1,0 +1,13 @@
+{
+  "name": "xom-online-live-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "tiktok-live-connector": "2.5.0"
+  },
+  "license": "AGPL-3.0-only"
+}
