@@ -29,10 +29,14 @@ export class World {
     this.seen.set(e.id,now);
     while(this.seen.size>this.settings.dedupeLimit) this.seen.delete(this.seen.keys().next().value);
     let u=this.users.get(e.user.id);
-    if(e.type==='leave') {if(u)this.remove(u.id);return;}
+    if(e.type==='leave') {
+      if(u&&!u.departedAt){u.departedAt=now||1;u.state='standing';u.action=null;u.removeAt=now+18000;this.waiting=this.waiting.filter(id=>id!==u.id);this.history.unshift({...e,at:now,action:null});this.history.length=Math.min(this.history.length,this.settings.historyLimit);}
+      return;
+    }
+    if(u?.departedAt){if(e.type==='join')u.returnEvent=e;return;}
     if(!u) {
       if(this.users.size>=this.settings.maxVisible+this.settings.maxWaiting){this.dropped++;return;}
-      u={...e.user,seat:null,state:'waiting',lastSeen:now,action:null,actionUntil:0,arrivedAt:0};
+      u={...e.user,seat:null,state:'waiting',lastSeen:now,action:null,actionUntil:0,arrivedAt:0,joinedAt:now,departedAt:null};
       if(!this.visitors.has(u.id)) {
         if(this.visitors.size<this.settings.sessionVisitorLimit){this.visitors.add(u.id);this.total++;}
         else this.totalCapped=true;
@@ -56,7 +60,8 @@ export class World {
     for(let i=0;i<this.settings.eventsPerTick&&this.queue.length;i++)this.apply(this.queue.shift());
     const now=this.now();
     for(const [id,u] of this.users) {
-      if(now-u.lastSeen>this.settings.idleTimeoutMs){this.remove(id);continue;}
+      if(u.departedAt){if(now>=u.removeAt){const back=u.returnEvent;this.remove(id);if(back){this.seen.delete(back.id);this.apply(back);}}else u.state=now-u.departedAt<900?'standing':now-u.departedAt<14000?'walking':'exiting';continue;}
+      if(this.mode==='DEMO'&&now-u.lastSeen>this.settings.idleTimeoutMs){this.remove(id);continue;}
       if(u.state==='walking'&&now>=u.arrivedAt)u.state='sitting';
       if(u.actionUntil<=now)u.action=null;
     }
@@ -64,7 +69,7 @@ export class World {
   }
   snapshot() {
     const users=[...this.users.values()];const visible=users.filter(u=>u.seat!==null);
-    return {mode:this.mode,sound:this.sound,users,total:this.total,totalCapped:this.totalCapped,inside:visible.length,waiting:this.waiting.length,tablesUsed:new Set(visible.map(u=>Math.floor(u.seat/this.settings.seatsPerTable))).size,capacity:Math.min(this.settings.maxVisible,this.settings.tables*this.settings.seatsPerTable),queue:this.queue.length,dropped:this.dropped,history:this.history,groupUntil:this.groupUntil,lastEffect:this.lastEffect,serverTime:this.now()};
+    return {giftRules:this.gifts,mode:this.mode,sound:this.sound,users,total:this.total,totalCapped:this.totalCapped,inside:visible.length,waiting:this.waiting.length,tablesUsed:new Set(visible.map(u=>Math.floor(u.seat/this.settings.seatsPerTable))).size,capacity:Math.min(this.settings.maxVisible,this.settings.tables*this.settings.seatsPerTable),queue:this.queue.length,dropped:this.dropped,history:this.history,groupUntil:this.groupUntil,lastEffect:this.lastEffect,serverTime:this.now()};
   }
 }
 export function demoEvent(type='join', index=1, giftName='Rose', count=1) {

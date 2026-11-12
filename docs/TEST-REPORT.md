@@ -55,3 +55,10 @@ Source commit 6854638d62894ff2cd2961b0764949621ebb509b, workflow https://github.
 - Kiểm thử: phân loại lỗi SDK thật; exception composite/cause lồng nhau và có chu trình; không lộ dữ liệu nhạy cảm; gộp lỗi vừa emit vừa reject; lỗi quyền dừng retry;429 chờ đúng millisecond của SDK và header HTTP; cooldown không bị xóa khi ngắt thủ công; socket mở chưa có sự kiện không reset retry; lỗi danh mục quà tùy chọn không làm chết transport và không bỏ qua429.
 - Thử username công khai trong ảnh do người dùng cung cấp từ môi trường kiểm thử: không tìm được room, verified=false, RequestError HTTP301 ở bước lookup. Không nhận sự kiện thật. Mạng/môi trường kiểm thử khác laptop người dùng, nên không kết luận đây là cùng nguyên nhân trên laptop.
 - Vẫn cần chạy bản mới trên laptop để lấy mã lỗi cụ thể tại nguồn đó. Không xem phần sửa log/retry là bằng chứng đã kết nối TikTok thành công.
+
+## Nâng cấp người xem / âm thanh (2026-11-12)
+
+- Local: 40 tests, 39 pass, 1 Windows-only skip; thêm kiểm tra vòng đời rời/quay lại, nhiều khách rời, LIVE im lặng, hướng dẫn theo ánh xạ quà, PCM WAV không rỗng, mức môi trường theo số khách và Unicode tên dài.
+- Browser test `scripts/browser-check.mjs` chạy trong workflow hiện có: WebGL thật qua Chromium/SwiftShader; đo PCM từng kênh; nút phát, playlist thêm/xóa/đổi; chuyển động rời và xóa rồi vào lại; ảnh 1920×1080 và 1280×720 làm artifact. Không gọi đó là kiểm chứng âm thanh trên LIVE Studio.
+- Chromium local không khởi động được do hạn chế socket của môi trường, nên kết quả trình duyệt phải lấy từ GitHub Actions sau khi chạy.
+- Chưa kiểm chứng sự kiện rời TikTok thật (nguồn hiện không cung cấp), chưa xác nhận mix âm thanh ra buổi LIVE trên laptop. Không đổi dữ liệu DEMO thành LIVE.

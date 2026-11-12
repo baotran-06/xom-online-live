@@ -1,0 +1,12 @@
+{
+  "title": "Chung bàn, chung vui",
+  "items": [
+    {"icon":"⭐","label":"Theo dõi","event":"follow"},
+    {"icon":"❤️","label":"Thả tim","event":"like"},
+    {"icon":"🌹","label":"Tặng hoa","giftName":"rose"},
+    {"icon":"🍺","label":"Tặng bia","giftName":"beer"},
+    {"icon":"✨","label":"Galaxy / Lion","giftName":"galaxy"}
+  ],
+  "actions":{"wave":"Nhân vật vẫy tay chào bạn","flowers":"Nhân vật cầm bó hoa","cheers":"Nhân vật nâng ly","spotlight":"Nhân vật nhún nhảy, giơ hai tay"},
+  "note":"Hành động diễn ra khi nhận được sự kiện. Quà được đối chiếu cấu hình thực tế; quà theo ID có thể khác theo vùng."
+}

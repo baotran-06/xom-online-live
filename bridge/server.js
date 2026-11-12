@@ -15,7 +15,7 @@ export function createApp(options={}) {
   const bridge=new TikTokBridge(e=>world.enqueue(e),s=>{connection=s;},log,options.loader);
   const json=(res,status,obj)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(obj));};
   const frontend=resolve(fileURLToPath(new URL('frontend/',root)));
-  const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2'};
+  const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2','.mp3':'audio/mpeg','.wav':'audio/wav','.ogg':'audio/ogg'};
   const liveEvidence=()=>bridge.evidence();
   const connectLive=async username=>{
     if(!/^[a-zA-Z0-9_.]{1,40}$/.test(username))throw Error('Username không hợp lệ');
@@ -25,7 +25,7 @@ export function createApp(options={}) {
   };
   const server=http.createServer(async(req,res)=>{
     res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');
-    res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws://127.0.0.1:*; img-src 'self' data:; frame-ancestors 'self'; object-src 'none'; base-uri 'none'");
+    res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws://127.0.0.1:*; img-src 'self' data:; media-src 'self' blob:; frame-ancestors 'self'; object-src 'none'; base-uri 'none'");
     if(!/^127\.0\.0\.1:\d+$/.test(req.headers.host||'')){json(res,403,{error:'Chỉ dùng địa chỉ 127.0.0.1'});return;}
     let pathname;try{pathname=decodeURIComponent(new URL(req.url,'http://127.0.0.1').pathname);}catch{json(res,400,{error:'URL không hợp lệ'});return;}
     if(pathname.startsWith('/api/')) {
@@ -64,7 +64,7 @@ export function createApp(options={}) {
             clearInterval(auto);auto=null;if(body.enabled){auto=setInterval(()=>{const i=++demoIndex;world.enqueue(demoEvent('join',i));if(i%3===0)world.enqueue(demoEvent('gift',Math.max(1,i-1),'Beer',i%12+1));},2000);auto.unref();}
           } else {
             const amount=Math.max(1,Math.min(100,Number(body.amount)||1));
-            const allowed=['join','like','follow','gift'];const type=allowed.includes(body.type)?body.type:'join';
+            const allowed=['join','leave','like','follow','gift'];const type=allowed.includes(body.type)?body.type:'join';
             for(let i=0;i<amount;i++)world.enqueue(demoEvent(type,type==='join'?++demoIndex:Math.max(1,Math.min(demoIndex,Number(body.viewer)||1)),String(body.giftName||'Rose'),Number(body.count)||1));
           }
         }else {json(res,404,{error:'Không tìm thấy lệnh'});return;}

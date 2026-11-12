@@ -1,4 +1,5 @@
 import * as T from '../assets/vendor/three.module.js';
+export function shortName(name,max=20){const chars=Array.from(String(name));return chars.length>max?chars.slice(0,max-1).join('')+'…':chars.join('');}
 export const TABLES=[[-6, -1.4],[0,-1.4],[6,-1.4],[-7,3.8],[-2.35,3.8],[2.35,3.8],[7,3.8]];
 const COLORS=[0xefa74e,0x45a9a0,0xd66d69,0x7c8bd1,0xb0b95e,0xf6c97b,0x8ebbb3,0xc78ab2];
 export class Tavern {
@@ -11,7 +12,7 @@ export class Tavern {
     this.materials=new Map();this.avatars=new Map();this.staticRoot=new T.Group();this.scene.add(this.staticRoot);this.clock=new T.Clock();this.time=0;
     this.scene.add(new T.HemisphereLight(0xffecd0,0x4f6d62,2.1));const sun=new T.DirectionalLight(0xffdfad,3.6);sun.position.set(-5,16,10);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-15,right:15,top:12,bottom:-12,near:.5,far:50});sun.shadow.bias=-.001;this.scene.add(sun);
     const fill=new T.DirectionalLight(0x94e5d7,1.4);fill.position.set(10,7,-3);this.scene.add(fill);
-    this.build();this.instanceStatic();this.resize=()=>{const w=canvas.clientWidth,h=canvas.clientHeight;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.fov=w/h<1.3?58:42;this.camera.updateProjectionMatrix();};this.resize();window.addEventListener('resize',this.resize);
+    this.build();this.instanceStatic();this.resize=()=>{const w=canvas.clientWidth,h=canvas.clientHeight;this.viewportWidth=w;this.viewportHeight=h;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.fov=2*T.MathUtils.radToDeg(Math.atan(Math.tan(T.MathUtils.degToRad(21))*Math.max(1,(16/9)/(w/h))));this.camera.updateProjectionMatrix();};this.resize();window.addEventListener('resize',this.resize);
     this.effect=new T.Group();this.scene.add(this.effect);for(let i=0;i<70;i++){const m=this.mesh('box',COLORS[i%8],[.08,.16,.04],[0,-10,0],this.effect);m.userData={seed:i*2.399};}this.effectUntil=0;
     this.renderer.setAnimationLoop(()=>this.frame());
   }
@@ -104,23 +105,47 @@ export class Tavern {
     const legs=[];for(const side of [-1,1]){const leg=this.group([side*.14,.76,0],body);this.cyl(0x465c59,.10,.38,[0,-.16,0],leg);const shin=this.group([0,-.34,0],leg);this.cyl(0x465c59,.09,.34,[0,-.15,0],shin);this.sphere(0xeee0bd,[.12,.07,.19],[0,-.32,.06],shin);legs.push({leg,shin});}
     const mug=this.mug([0,-.48,.10],arms[1],.8);mug.visible=false;
     const flowers=this.group([0,-.45,.04],arms[1]);for(let i=0;i<5;i++){this.cyl(0x52885b,.012,.4,[i*.035-.07,.15,0],flowers);this.sphere(i%2?0xf297ac:0xf2d17a,[.08,.08,.08],[i*.07-.14,.39+Math.sin(i)*.06,0],flowers);}flowers.visible=false;
-    const c=document.createElement('canvas');c.width=512;c.height=96;const ctx=c.getContext('2d');ctx.fillStyle=host?'#d8ab4d':'#fff8df';ctx.beginPath();ctx.roundRect(6,8,500,78,30);ctx.fill();ctx.font='bold 34px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#224b3f';ctx.fillText(user.name,256,48,470);
-    const texture=new T.CanvasTexture(c);texture.colorSpace=T.SRGBColorSpace;const label=new T.Sprite(new T.SpriteMaterial({map:texture,depthTest:false}));label.scale.set(1.8,.34,1);label.position.set(0,2.3,0);g.add(label);
-    return {group:g,body,arms,legs,mug,flowers,label,texture,born:this.time,from:new T.Vector3(-12,0,6),seat:user.seat};
+    const c=document.createElement('canvas');c.width=512;c.height=96;const ctx=c.getContext('2d');ctx.fillStyle=host?'#d8ab4d':'#fff8df';ctx.beginPath();ctx.roundRect(6,8,500,78,30);ctx.fill();ctx.font='bold 34px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#224b3f';ctx.fillText(shortName(user.name),256,48,470);
+    const texture=new T.CanvasTexture(c);texture.colorSpace=T.SRGBColorSpace;const label=new T.Sprite(new T.SpriteMaterial({map:texture,depthTest:false}));label.scale.set(2.15,.4,1);label.position.set(0,2.3,0);g.add(label);
+    return {group:g,body,arms,legs,mug,flowers,label,texture,born:this.time,from:new T.Vector3(-12,0,6),seat:user.seat,name:user.name,joinedAt:user.joinedAt,host};
   }
   update(state){
-    this.state=state;const live=new Set();
-    for(const u of state.users){if(u.seat===null)continue;live.add(u.id);let a=this.avatars.get(u.id);if(!a){a=this.createAvatar(u);this.avatars.set(u.id,a);}a.user=u;}
-    for(const [id,a] of this.avatars)if(!live.has(id)){this.scene.remove(a.group);a.texture.dispose();a.label.material.dispose();this.avatars.delete(id);}
+    this.state=state;this.stateAt=this.time;const live=new Set();
+    for(const u of state.users){if(u.seat===null)continue;live.add(u.id);let a=this.avatars.get(u.id);if(a&&a.joinedAt!==u.joinedAt){this.disposeAvatar(a);this.avatars.delete(u.id);a=null;}if(!a){a=this.createAvatar(u);this.avatars.set(u.id,a);}if(a.name!==u.name){const ctx=a.texture.image.getContext('2d');ctx.fillStyle='#fff8df';ctx.fillRect(0,0,512,96);ctx.fillStyle='#224b3f';ctx.fillText(shortName(u.name),256,48,470);a.texture.needsUpdate=true;a.name=u.name;}a.user=u;}
+    for(const [id,a] of this.avatars)if(!live.has(id)){this.disposeAvatar(a);this.avatars.delete(id);}
     if(state.groupUntil>state.serverTime)this.effectUntil=this.time+Math.min(6,(state.groupUntil-state.serverTime)/1000);
+  }
+  disposeAvatar(a){this.scene.remove(a.group);a.texture.dispose();a.label.material.dispose();}
+  departurePath(a){
+    const start=a.group.position.clone();const [tx]=TABLES[Math.floor(a.user.seat/4)];const side=start.x>=tx?1:-1;const lane=1.03+(a.user.seat%4)*.11;const outer=-12.5-Math.floor(a.user.seat/4)*.16;
+    return [start,new T.Vector3(tx+side*2.05,0,start.z),new T.Vector3(tx+side*2.05,0,lane),new T.Vector3(outer,0,lane),new T.Vector3(outer,0,9.8),new T.Vector3(-30,0,10.5)];
+  }
+  alongPath(points,progress){const lengths=points.slice(1).map((p,i)=>p.distanceTo(points[i]));let distance=lengths.reduce((a,b)=>a+b,0)*T.MathUtils.clamp(progress,0,1);for(let i=0;i<lengths.length;i++){if(distance<=lengths[i]||i===lengths.length-1)return {position:points[i].clone().lerp(points[i+1],Math.min(1,distance/(lengths[i]||1))),angle:Math.atan2(points[i+1].x-points[i].x,points[i+1].z-points[i].z)};distance-=lengths[i];}}
+  layoutLabels(){
+    this.camera.updateMatrixWorld();const placed=[];const w=this.renderer.domElement?.clientWidth||this.viewportWidth||1920;const h=this.renderer.domElement?.clientHeight||this.viewportHeight||1080;
+    for(const a of [...this.avatars.values()].sort((a,b)=>a.user.seat-b.user.seat)){
+      a.label.position.set(0,2.3,0);a.label.visible=true;const point=a.group.localToWorld(new T.Vector3(0,2.3,0));const ndc=point.clone().project(this.camera);if(ndc.x < -1.1||ndc.x>1.1||ndc.z>1){a.label.visible=false;continue;}
+      let y=(1-ndc.y)*h/2;const x=(ndc.x+1)*w/2;const depth=point.distanceTo(this.camera.position);const px=h/(2*Math.tan(T.MathUtils.degToRad(this.camera.fov/2))*depth);const width=2.15*px;const height=.4*px;
+      for(let row=0;row<14;row++){if(!placed.some(p=>Math.abs(p.x-x)<(p.width+width)/2+3&&Math.abs(p.y-y)<(p.height+height)/2+3))break;y-=height+4;}
+      a.label.position.y+=( (1-ndc.y)*h/2-y)/px;placed.push({x,y,width,height});
+    }
   }
   frame(){
     const delta=Math.min(.05,this.clock.getDelta());this.time+=delta;const t=this.time;
     for(const a of this.avatars.values()){
-      const u=a.user;const target=this.seatPosition(u.seat);const progress=Math.min(1,(t-a.born)/3);const walking=progress<1;
+      const u=a.user;const target=this.seatPosition(u.seat);const progress=Math.min(1,(t-a.born)/3);let walking=progress<1;const leaving=Boolean(u.departedAt);
       const eased=progress*progress*(3-2*progress);a.group.position.set(T.MathUtils.lerp(-12,target.x,eased),0,T.MathUtils.lerp(6,target.z,eased));a.group.rotation.y=walking?Math.atan2(target.x+12,target.z-6):target.angle;
+      if(leaving){
+        if(!a.exit){a.exit={at:t,points:this.departurePath(a)};}
+        const elapsed=Math.max(0,(this.state.serverTime-u.departedAt)/1000+(t-this.stateAt));
+        const move=this.alongPath(a.exit.points,(elapsed-.9)/16.8);a.group.position.copy(move.position);walking=elapsed>=.9;
+        const turn=Math.min(1,elapsed/.9);a.group.rotation.y=T.MathUtils.lerp(target.angle,move.angle,turn);
+        a.stand=Math.min(1,elapsed/.7);
+      }
+
       a.body.position.y=walking?Math.sin(t*12)*.035:-.24+Math.sin(t*1.8+a.seat)*.012;
-      a.legs.forEach(({leg,shin},i)=>{leg.rotation.x=walking?Math.sin(t*10+i*Math.PI)*.6:-Math.PI/2;shin.rotation.x=walking?0:Math.PI/2;});
+      if(leaving&&!walking)a.body.position.y=-.24*(1-a.stand);
+      a.legs.forEach(({leg,shin},i)=>{leg.rotation.x=walking?Math.sin(t*10+i*Math.PI)*.6:leaving?-Math.PI/2*(1-a.stand):-Math.PI/2;shin.rotation.x=walking?0:leaving?Math.PI/2*(1-a.stand):Math.PI/2;});
       a.arms.forEach((arm,i)=>{arm.rotation.x=walking?Math.sin(t*10+i*Math.PI)*.4:-.25;arm.rotation.z=0;});a.mug.visible=false;a.flowers.visible=false;
       const group=this.effectUntil>t;
       if(u.action==='wave'){a.arms[1].rotation.z=-2.5+Math.sin(t*9)*.3;}
@@ -131,6 +156,7 @@ export class Tavern {
     }
     this.effect.visible=this.effectUntil>t;
     if(this.effect.visible)for(const m of this.effect.children){const s=m.userData.seed;m.position.set(Math.sin(s)*11,((t*1.7+s)%7),Math.cos(s)*6);m.rotation.set(t+s,t*.8,s);}
+    this.scene.updateMatrixWorld(true);this.layoutLabels();
     this.renderer.render(this.scene,this.camera);
   }
   dispose(){this.renderer.setAnimationLoop(null);window.removeEventListener('resize',this.resize);this.scene.traverse(o=>{if(o.material?.map)o.material.map.dispose();if(o.material&&!this.materials.has(o.material))o.material.dispose?.();});for(const g of Object.values(this.geometries))g.dispose();for(const m of this.materials.values())m.dispose();this.renderer.dispose();}

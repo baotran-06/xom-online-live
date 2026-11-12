@@ -64,7 +64,7 @@ export class TikTokBridge {
   }
   report(error){const diagnostic=diagnoseTikTok(error);this.verified=false;this.lastError=diagnostic;if(diagnostic.code==='RATE_LIMIT'||diagnostic.details.some(n=>n.status===429))this.cooldownUntil=Math.max(this.cooldownUntil,Date.now()+Math.max(1500,diagnostic.retryAfterMs));const line=diagnosticLine(diagnostic);const now=Date.now();if(!this.lastLogged||this.lastLogged.line!==line||now-this.lastLogged.at>60000){this.log(line);this.lastLogged={line,at:now};}return diagnostic;}
   retireClient(){const old=this.client;this.client=null;if(old){old.removeAllListeners();old.on('error',()=>{});try{Promise.resolve(old.disconnect()).catch(()=>{});}catch{}}}
-  evidence(){return {verified:this.verified,receivedEvents:this.receivedEvents,lastEventAt:this.lastEventAt,username:this.target||null,lastError:this.lastError,nextRetryAt:this.nextRetryAt,cooldownUntil:this.cooldownUntil};}
+  evidence(){return {verified:this.verified,receivedEvents:this.receivedEvents,lastEventAt:this.lastEventAt,username:this.target||null,capabilities:{viewerLeave:false,viewerLeaveNote:'Connector 2.5.0 không cung cấp sự kiện rời LIVE theo từng ID; không suy luận từ số người xem hoặc im lặng.'},lastError:this.lastError,nextRetryAt:this.nextRetryAt,cooldownUntil:this.cooldownUntil};}
   retry(gen,minimumDelay=0) {
     if(gen!==this.generation||this.timer)return;this.verified=false;
     this.retireClient();

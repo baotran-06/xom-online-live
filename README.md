@@ -103,3 +103,9 @@ Xem [hướng dẫn Windows và đưa game lên sóng](docs/WINDOWS-OBS.md). OBS
 ## Giấy phép
 
 AGPL-3.0-only cho bản phân phối dự án để phù hợp connector TikTok hiện tại. Three.js/ws theo MIT, thông báo bản quyền Three.js trong assets/vendor. Giữ mã nguồn và thông báo giấy phép khi phân phối. Tài sản đồ họa/âm thanh do mã dự án tạo, không lấy ảnh/avatar/nhạc có bản quyền bên ngoài. Không được TikTok bảo trợ.
+
+### Bản nâng cấp màn hình người xem và âm thanh
+
+Bảng hướng dẫn cố định bên phải, bảng tên Unicode có nền và xếp tầng, playlist nhạc gốc cùng bộ trộn nhạc/không khí/hiệu ứng độc lập. Bấm **Bắt đầu âm thanh** ở màn hình game để cấp quyền phát. Âm thanh quán dùng bản thu nhà hàng Việt Nam CC0 đóng gói sẵn; tăng giảm mượt theo khách. DEMO có nút **Khách #1 rời quán** với hoạt ảnh đứng dậy, đi ra và dọn bảng tên.
+
+Xem [hướng dẫn cập nhật, âm thanh và giới hạn nguồn LIVE](docs/VIEWER-AUDIO.md). Nguồn connector hiện chưa có sự kiện rời từng ID; game không tự xóa khách LIVE vì im lặng. Âm thanh trình duyệt và thu âm TikTok LIVE Studio là hai bước kiểm chứng riêng; chưa xác nhận đường âm thanh trên laptop người dùng.
