@@ -1,7 +1,6 @@
 import {mkdir,open,readFile,writeFile,unlink,stat} from 'node:fs/promises';
 import {appendFileSync,existsSync,renameSync,unlinkSync,truncateSync} from 'node:fs';
 import {createHash,randomBytes,randomUUID} from 'node:crypto';
-import {createRequire} from 'node:module';
 import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {spawn,spawnSync} from 'node:child_process';
@@ -25,7 +24,11 @@ export async function probe(origin,expected={}) {
 }
 async function portFree(port){await new Promise((resolve,reject)=>{const server=net.createServer();server.once('error',()=>reject(Error('Cong '+port+' dang ban. Khong tat tien trinh khac; dong phien cu hoac dung STOP-XOM.bat trong dung thu muc.')));server.listen(port,'127.0.0.1',()=>server.close(resolve));});}
 async function fingerprint(root,sub){return createHash('sha256').update(await readFile(join(root,sub,'package-lock.json'))).digest('hex');}
-async function modulesValid(root,sub){try{const dir=join(root,sub);const pkg=await readJSON(join(dir,'package.json'));const req=createRequire(join(dir,'package.json'));for(const [name,version] of Object.entries(pkg.dependencies||{})){const installed=JSON.parse(await readFile(join(dir,'node_modules',...name.split('/'),'package.json'),'utf8'));if(installed.version!==version)return false;await import(pathToFileURL(req.resolve(name)).href);}return true;}catch{return false;}}
+async function modulesValid(root,sub){return new Promise(resolve=>{
+  const child=spawn(process.execPath,[join(root,'scripts','check-dependencies.mjs'),sub],{cwd:root,windowsHide:true,stdio:'ignore'});
+  const timer=setTimeout(()=>{child.kill();resolve(false);},20000);
+  child.once('error',()=>{clearTimeout(timer);resolve(false);});child.once('close',code=>{clearTimeout(timer);resolve(code===0);});
+});}
 function run(command,args,cwd,log){return new Promise((resolve,reject)=>{const child=spawn(command,args,{cwd,windowsHide:true,windowsVerbatimArguments:command.toLowerCase().endsWith('cmd.exe'),stdio:['ignore','pipe','pipe']});child.stdout.on('data',b=>{process.stdout.write(b);log(b.toString(),false);});child.stderr.on('data',b=>{process.stderr.write(b);log(b.toString(),false);});child.once('error',reject);child.once('close',code=>code===0?resolve():reject(Error('Buoc cai dat/build that bai (exit '+code+'). Kiem tra Internet va .runtime/logs/latest.log, sau do nhan START lai.')));});}
 export async function runNpm(root,sub,log){
   const candidate=join(dirname(process.execPath),'node_modules','npm','bin','npm-cli.js');
