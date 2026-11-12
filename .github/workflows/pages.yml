@@ -27,8 +27,19 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+  windows-launcher:
+    runs-on: windows-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Execute START and STOP BAT on Windows
+        run: node --test tests/windows-launcher.test.js
   deploy:
-    needs: test-build
+    needs: [test-build, windows-launcher]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

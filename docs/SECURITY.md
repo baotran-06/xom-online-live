@@ -7,3 +7,5 @@ HTTP và WebSocket bind **127.0.0.1**. Không mở cổng ra LAN/Internet. Kiể
 Thông tin người xem chỉ lưu RAM: ID, tên và sự kiện đã chuẩn hóa; không lưu avatar URL hay raw payload. Tên người xem dùng textContent/Canvas, không đưa vào innerHTML. Lịch sử 80, lỗi 60; log lỗi chung, không ghi stack/URL ký/token. Khi đóng tiến trình dữ liệu mất. Nếu phân phối hoặc phục vụ bản chỉnh sửa chứa connector AGPL, cần giữ tuân thủ giấy phép và cung cấp mã nguồn tương ứng.
 
 `npm run publish:github` gọi gh CLI đã xác thực bằng kho thông tin đăng nhập của gh, không đọc hoặc in token. Script chỉ tạo repo mới, từ chối nếu tên đã tồn tại và không sửa các repo cũ. Không tự đăng nhập hoặc yêu cầu dán token vào mã.
+
+Launcher ghi token quản lý ngẫu nhiên trong `.runtime/control.json` (gitignored), gắn instanceId và fingerprint thư mục. STOP chỉ gửi yêu cầu tới loopback sau khi kiểm tra đúng phiên/thư mục, không dùng taskkill toàn bộ node.exe. `/api/launcher/stop` yêu cầu Bearer token đúng; admin cookie không thay thế token này. `.runtime/preferences.json` chỉ lưu username công khai và lựa chọn tự kết nối, không có mật khẩu/cookie TikTok. Không upload `.runtime` hoặc gửi control.json.

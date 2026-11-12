@@ -1,0 +1,21 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {EventEmitter} from 'node:events';
+import {mkdtemp,cp,mkdir,writeFile,readFile,rm,symlink} from 'node:fs/promises';import {tmpdir} from 'node:os';import {join,resolve} from 'node:path';import {spawn} from 'node:child_process';import {createHash} from 'node:crypto';import net from 'node:net';
+import {checkedPort,projectIdentity,ensureDependencies,probe,stopSystem} from '../scripts/launcher.mjs';import {TikTokBridge} from '../bridge/tiktok.js';
+const source=resolve(import.meta.dirname,'..');const pause=ms=>new Promise(r=>setTimeout(r,ms));
+test('LIVE transport is unverified until a valid provider event; reconnect and stop revoke verification',async()=>{let c;class Fake extends EventEmitter{constructor(){super();c=this;}async connect(){}async disconnect(){}}
+ const statuses=[];const b=new TikTokBridge(()=>{},s=>statuses.push(s),()=>{},async()=>({TikTokLiveConnection:Fake}));await b.start('fixture');assert.equal(statuses.at(-1),'awaiting-event');assert.equal(b.evidence().verified,false);c.emit('member',{});assert.equal(b.evidence().verified,false);c.emit('member',{user:{id:'123',nickname:'Fixture only'}});assert.equal(statuses.at(-1),'connected');assert.equal(b.evidence().receivedEvents,1);assert.equal(b.evidence().verified,true);b.retry(b.generation);assert.equal(b.evidence().verified,false);await b.stop();assert.equal(b.evidence().verified,false);
+});
+test('ports and project identity reject ambiguous management targets',()=>{assert.equal(checkedPort(),3210);assert.throws(()=>checkedPort('3210;kill'));assert.throws(()=>checkedPort(0));assert.notEqual(projectIdentity('/tmp/a'),projectIdentity('/tmp/b'));});
+test('Linux launcher process lifecycle uses real HTTP/WebSocket and authenticated graceful stop', {skip:process.platform==='win32',timeout:45000},async t=>{
+ const root=await mkdtemp(join(tmpdir(),'Xom lifecycle spaces '));await cp(source,root,{recursive:true,filter:p=>!/(^|\/)(?:node_modules|\.git|\.runtime|dist)(?:\/|$)/.test(p)});
+ await cp(join(source,'node_modules'),join(root,'node_modules'),{recursive:true});await cp(join(source,'bridge','node_modules'),join(root,'bridge','node_modules'),{recursive:true});await mkdir(join(root,'.runtime'));
+ // Already-installed fixtures skip network; first-install paths run on Windows CI.
+ const stamp={};for(const sub of ['','bridge'])stamp[sub||'root']=createHash('sha256').update(await readFile(join(root,sub,'package-lock.json'))).digest('hex');await writeFile(join(root,'.runtime','dependencies.json'),JSON.stringify(stamp));
+ const reserve=net.createServer();await new Promise(r=>reserve.listen(0,'127.0.0.1',r));const port=reserve.address().port;await new Promise(r=>reserve.close(r));const origin='http://127.0.0.1:'+port;
+ let output='';const child=spawn(process.execPath,[join(root,'scripts','launcher.mjs'),'start'],{env:{...process.env,XOM_NO_BROWSER:'1',XOM_PORT:String(port)},stdio:['ignore','pipe','pipe']});child.stdout.on('data',b=>output+=b);child.stderr.on('data',b=>output+=b);const done=new Promise(r=>child.once('exit',r));
+ t.after(async()=>{try{await stopSystem({root,timeoutMs:3000});}catch{}if(child.exitCode===null)child.kill();await rm(root,{recursive:true,force:true});});
+ let health;const until=Date.now()+20000;while(Date.now()<until){try{health=await probe(origin);break;}catch{}if(child.exitCode!==null)throw Error(output);await pause(100);}assert.ok(health,output);assert.equal(health.liveEvidence.verified,false);assert.equal((await (await fetch(origin+'/api/state')).json()).mode,'LIVE');
+ assert.equal((await fetch(origin+'/api/launcher/stop',{method:'POST',headers:{Authorization:'Bearer '+'0'.repeat(64)}})).status,403);
+ await stopSystem({root,timeoutMs:10000});assert.equal(await done,0);await assert.rejects(fetch(origin+'/api/health'));assert.match(output,/HTTP \+ WebSocket \+ frontend da san sang/);await stopSystem({root});
+});
+test('dependency installer failure is surfaced instead of reporting ready',async()=>{const root=await mkdtemp(join(tmpdir(),'Xom failed setup '));try{await mkdir(join(root,'.runtime'));await writeFile(join(root,'package-lock.json'),'{}');await assert.rejects(ensureDependencies(root,()=>{},async()=>{throw Error('offline fixture');}),/offline fixture/);}finally{await rm(root,{recursive:true,force:true});}});

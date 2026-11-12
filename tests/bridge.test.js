@@ -16,7 +16,7 @@ test('HTTP + WebSocket end-to-end; origin, DEMO/LIVE separation, restart, traver
  let s=await (await fetch(origin+'/api/state')).json();assert.equal(s.inside,28);assert.equal(s.waiting,7);assert.equal(s.total,35);
  const ws=new WebSocket(origin.replace('http:','ws:')+'/ws');const snapshot=await new Promise((resolve,reject)=>{ws.addEventListener('message',e=>resolve(JSON.parse(e.data)),{once:true});ws.addEventListener('error',reject,{once:true});});assert.equal(snapshot.inside,28);ws.close();
  assert.equal((await post('mode',{mode:'LIVE'})).status,200);assert.equal((await post('demo',{type:'gift'})).status,409);s=await (await fetch(origin+'/api/state')).json();assert.equal(s.total,0);assert.equal(s.mode,'LIVE');
- assert.equal((await post('restart',{})).status,200);s=await (await fetch(origin+'/api/state')).json();assert.equal(s.mode,'DEMO');assert.equal(s.users.length,0);
+ assert.equal((await post('restart',{})).status,200);s=await (await fetch(origin+'/api/state')).json();assert.equal(s.mode,'LIVE');assert.equal(s.users.length,0);
  assert.notEqual((await fetch(origin+'/%2e%2e%2fpackage.json')).status,200);
  assert.equal((await fetch(origin+'/js/scene.js')).status,200);
 });

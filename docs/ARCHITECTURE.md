@@ -36,3 +36,6 @@ Chuyển chế độ xóa toàn bộ khách, queue, cache, lịch sử. LIVE t�
 ## Giới hạn cấu hình
 
 `tables:7`, `seatsPerTable:4`, `maxVisible:28` khớp bố trí mesh hiện tại. Có thể hạ maxVisible. Tăng bàn/ghế cần sửa `TABLES` và layout cảnh; không chỉ sửa JSON. Giới hạn hàng đợi 2.000, xử lý 30 event/100 ms (~300/s). Quá tải được bỏ và đếm rõ trên admin. Idle avatar hết hạn, geometry dùng chung, texture tên được dispose, audio nodes được disconnect. Chưa có kiểm thử soak nhiều giờ trên máy Windows thật.
+
+## Launcher Windows
+START gọi launcher Node chỉ dùng builtins trước khi cài deps. Dùng npm ci theo lock root/bridge và dấu vân tay lock; kiểm tra version/import để sửa dependencies thiếu/hỏng. Một process phục vụ frontend, HTTP/API, WebSocket và TikTok. Sau build, probe `/api/health`, handshake WebSocket và HEAD frontend rồi mới mở admin. STOP xác minh instanceId/projectId/token, yêu cầu graceful shutdown; không tắt tiến trình khác. Mặc định local LIVE đang chờ, tự kết nối username đã lưu nếu được chọn; provider socket mở chỉ là awaiting-event, phải nhận sự kiện user hợp lệ mới connected và verified.

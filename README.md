@@ -13,8 +13,9 @@ Quán nhậu Việt Nam 3D tương tác với TikTok LIVE. Frontend Three.js/Web
 1. Cài **Node.js 22 LTS hoặc mới hơn**.
 2. Giải nén vào thư mục mới; chạy **START-XOM.bat**.
 3. Mở game `http://127.0.0.1:3210/`, điều khiển `http://127.0.0.1:3210/admin`.
-4. Thử +12 khách, Thử đầy quán, follow và quà DEMO trên bảng điều khiển.
-5. Muốn thử TikTok: chạy **INSTALL-TIKTOK.bat**, mở một buổi LIVE thật, nhập username và kết nối. Cần Internet. Không nhập mật khẩu hoặc token TikTok.
+4. Local khởi động ở LIVE đang chờ, không có khách giả. Nếu muốn thử DEMO, chủ động bật DEMO trên admin trước.
+5. START tự cài cả adapter TikTok nếu cần. Lần đầu nhập username và bật nhớ tự kết nối cho các lần sau. Chỉ báo LIVE đã xác minh sau sự kiện nguồn thật. Không nhập mật khẩu/token TikTok.
+6. Dừng bằng **STOP-XOM.bat** trong cùng thư mục; không dùng taskkill toàn bộ Node. Xem [hướng dẫn tải và dùng hai BAT](docs/WINDOWS-OBS.md).
 
 Hoặc terminal:
 
@@ -26,7 +27,7 @@ npm start
 npm ci --prefix bridge
 ```
 
-Tắt bằng Ctrl+C. Game/Admin local phải cùng origin. Không mở HTML bằng file://.
+Tắt bằng STOP-XOM.bat (hoặc Ctrl+C). Game/Admin local phải cùng origin. Không mở HTML bằng file://.
 
 ## Có gì trong dự án
 
@@ -48,7 +49,7 @@ Tắt bằng Ctrl+C. Game/Admin local phải cùng origin. Không mở HTML bằ
 - Không đăng ký leave event chưa được xác nhận; hết 10 phút không hoạt động sẽ nhường ghế. Đây là TTL, không phải biết chắc viewer rời LIVE.
 - Khi nguồn thiếu message ID/group ID, không thể cam kết exactly-once tuyệt đối. Replay sau cửa sổ cache 15 phút cũng không được bảo đảm chống lặp.
 - Dịch vụ ký có thể thay đổi, rate-limit, cần tài khoản/quyền hoặc có phí. Bản này không phụ thuộc máy chủ trả phí do dự án vận hành, nhưng không bảo đảm nhà cung cấp nguồn sẽ miễn phí/khả dụng mãi.
-- Chuyển LIVE/DEMO xóa phiên; không tự thêm viewer/quà giả trong LIVE. Trạng thái connected chỉ xác nhận socket nguồn; phải có sự kiện thật mới xác nhận luồng dữ liệu thực tế.
+- Chuyển LIVE/DEMO xóa phiên; khởi động lại adapter giữ chế độ hiện tại, không tự chuyển sang DEMO; không tự thêm viewer/quà giả trong LIVE. Trạng thái awaiting-event chỉ xác nhận socket nguồn; connected/“Đã nhận sự kiện TikTok LIVE thật” chỉ được đặt sau khi adapter nhận sự kiện nguồn hợp lệ.
 
 Tham khảo [nguồn & giấy phép](docs/SOURCES.md), [kiến trúc](docs/ARCHITECTURE.md), [bảo mật](docs/SECURITY.md).
 
@@ -93,7 +94,7 @@ Xem [hướng dẫn Windows và đưa game lên sóng](docs/WINDOWS-OBS.md). OBS
 - `tests/`: test tự động.
 - `scripts/`: check, build và xuất bản GitHub bằng gh trên máy đã đăng nhập.
 - `docs/`: kiến trúc, bảo mật, Windows/OBS, nguồn và báo cáo.
-- `START-XOM.bat`, `INSTALL-TIKTOK.bat`: khởi chạy Windows.
+- `START-XOM.bat`, `STOP-XOM.bat`: khởi chạy/dừng Windows; `scripts/launcher.mjs` quản lý lifecycle và health. `INSTALL-TIKTOK.bat` giữ tương thích nhưng không còn bắt buộc.
 
 ## Giấy phép
 
